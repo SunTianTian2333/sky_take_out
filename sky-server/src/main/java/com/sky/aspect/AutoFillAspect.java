@@ -8,6 +8,7 @@ import com.sky.enumeration.OperationType;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ public class AutoFillAspect {
     @Pointcut("execution(* com.sky.mapper.*.*(..))&& @annotation(com.sky.annotation.AutoFill)")
     public void autoFillPointCut() {}
 
+    @Before("autoFillPointCut()")
     public void autoFill(JoinPoint joinPoint) {
         log.info("开始进行公共字段填充");
         //获取当前被拦截方法上的数据库操作类型
