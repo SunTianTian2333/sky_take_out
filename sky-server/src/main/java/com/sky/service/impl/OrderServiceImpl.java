@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
@@ -13,6 +14,7 @@ import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.websocket.WebSocketServer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,9 @@ import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -41,6 +45,9 @@ public class OrderServiceImpl implements OrderService {
     private UserMapper userMapper;
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+    @Autowired
+    private WebSocketServer webSocketServer;
+
     /**
      * 用户下单
      * @param ordersSubmitDTO
@@ -137,6 +144,14 @@ public class OrderServiceImpl implements OrderService {
         Long orderId = orders.getId();
         orderMapper.updateStatus(OrderStatus, OrderPaidStatus, check_out_time, orderId);
 
+        // 通过websocket向浏览器推送信息
+        Map map =new HashMap();
+        map.put("type",1);  // 1表示来电提醒，2表示客户催单
+        map.put("orderId",orderId);
+        map.put("content","订单号"+ordersPaymentDTO.getOrderNumber());
+
+        String jsonString = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
         return vo;
 
 
