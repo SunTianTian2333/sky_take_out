@@ -10,11 +10,13 @@ import com.sky.vo.DishVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -122,4 +124,15 @@ public class DishController {
         Set keys = redisTemplate.keys(pattern);
         redisTemplate.delete(keys);
     }
+
+    @Mapper
+    public interface DishMapper {
+        /**
+         * 根据条件统计菜品数量
+         * @param map
+         * @return
+         */
+        Integer countByMap(Map map);
+    }
+
 }
